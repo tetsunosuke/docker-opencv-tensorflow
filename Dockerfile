@@ -20,7 +20,7 @@ RUN cd ~/tmp/opencv && mkdir build && cd build && cmake -DWITH_TBB=ON \
 RUN cd ~/tmp/opencv/build && make -j2 && make install
 
 # TensorflowとOpencvのインストール
-#RUN pip3 install numpy tensorflow opencv-python
+RUN pip3 install numpy tensorflow opencv-python
 
 ENV APP_NAME tensor-docker
 WORKDIR /home/$APP_NAME
