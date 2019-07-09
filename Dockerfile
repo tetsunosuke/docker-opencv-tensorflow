@@ -1,28 +1,16 @@
-# docker-tensor:1.0
-# docker run --rm -v `pwd`:/home/tensor-docker -it tensor-docker:1.0 /bin/bash
-FROM python:3.6
+# https://casualdevelopers.com/tech-tips/how-to-setup-anaconda-and-tensorflow-with-docker/#MinicondaTensorflowKerasDocker
+# docker run --rm -v `pwd`:/data -it conda:dev /bin/bash
 
-RUN apt-get update -y && apt-get install -yq make cmake gcc g++ unzip wget build-essential gcc zlib1g-dev vim
+FROM continuumio/miniconda3
 
-# Opencvのインストール
-RUN ln -s /usr/include/libv4l1-videodev.h /usr/include/linux/videodev.h
-RUN mkdir ~/tmp
-#RUN cd ~/tmp && wget https://github.com/Itseez/opencv/archive/3.4.6.zip && unzip 3.4.6.zip
-RUN cd ~/tmp && git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
+RUN apt-get update -y && apt-get install -qy vim
 
+RUN conda update conda \
+  && conda update --all \
+  && conda install jupyter numpy numexpr pandas matplotlib scipy statsmodels scikit-learn tensorflow keras  && conda clean --all && conda install -c menpo opencv=3.4.2
 
-RUN cd ~/tmp/opencv && mkdir build && cd build && cmake -DWITH_TBB=ON \
-    -DINSTALL_CREATE_DISTRIB=ON \
-    -DWITH_FFMPEG=OFF \
-    -DWITH_IPP=OFF \
-    -DOPENCV_EXTRA_MODULES_PATH=~/tmp/opencv_contrib/modules \
-    -DCMAKE_INSTALL_PREFIX=/usr/local ..
-RUN cd ~/tmp/opencv/build && make -j2 && make install
+VOLUME /data
 
-# TensorflowとOpencvのインストール
-RUN pip3 install numpy tensorflow opencv-python
+#EXPOSE 8888
 
-ENV APP_NAME tensor-docker
-WORKDIR /home/$APP_NAME
-
-CMD [ '/bin/bash'  ]
+#CMD jupyter notebook --notebook-dir=/data/notebooks --ip=0.0.0.0 --port=8888 --no-browser --allow-root
